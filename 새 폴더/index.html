@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍿 팝콘 보스 서바이벌 - 탄막 피하기</title>
+  <meta name="description" content="팝콘 테마의 탄막 피하기 보스전 게임. 대쉬, 스킬, 업그레이드를 활용해 보스의 탄막을 피하며 생존하라!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- MENU SCREEN -->
+  <div id="menu-screen" class="screen active">
+    <div class="menu-bg"></div>
+    <div class="menu-container">
+      <div class="title-area">
+        <div class="title-corn">🌽</div>
+        <h1 class="game-title">팝콘 보스 서바이벌</h1>
+        <p class="game-subtitle">탄막을 피하고 보스를 처치하라!</p>
+      </div>
+
+      <div class="section-label">캐릭터 선택</div>
+      <div class="char-select" id="char-select">
+        <div class="char-card selected" data-char="healer" id="char-healer">
+          <div class="char-emoji">🌽</div>
+          <div class="char-name">힐러</div>
+          <div class="char-skill">[Space] HP 회복</div>
+          <div class="char-passive">최대 HP +20%</div>
+        </div>
+        <div class="char-card" data-char="shield" id="char-shield">
+          <div class="char-emoji">🛡️</div>
+          <div class="char-name">쉴드</div>
+          <div class="char-skill">[Space] 0.8초 무적막</div>
+          <div class="char-passive">피격 데미지 -15%</div>
+        </div>
+        <div class="char-card" data-char="catcher" id="char-catcher">
+          <div class="char-emoji">🤾</div>
+          <div class="char-name">캐처</div>
+          <div class="char-skill">[Space] 탄환 보스에 던짐</div>
+          <div class="char-passive">이동속도 +10%</div>
+        </div>
+      </div>
+
+      <div class="section-label">난이도 선택</div>
+      <div class="diff-select" id="diff-select">
+        <button class="diff-btn" data-diff="easy" id="diff-easy">😊 쉬움</button>
+        <button class="diff-btn selected" data-diff="normal" id="diff-normal">😐 보통</button>
+        <button class="diff-btn" data-diff="hard" id="diff-hard">😤 어려움</button>
+        <button class="diff-btn" data-diff="extreme" id="diff-extreme">💀 극악</button>
+      </div>
+
+      <button id="start-btn" class="start-btn">게임 시작 🍿</button>
+
+      <div class="controls-hint">
+        <span>WASD / 방향키 이동</span>
+        <span>Q 대쉬</span>
+        <span>스페이스 캐릭터 스킬</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud">
+      <div id="hud-left">
+        <div id="hp-section">
+          <div class="hud-label">HP</div>
+          <div class="hp-bar-wrap">
+            <div id="hp-bar" class="hp-bar"></div>
+          </div>
+          <div id="hp-text">100/100</div>
+        </div>
+        <div id="dash-section">
+          <div class="hud-label">대쉬 (Q)</div>
+          <div id="dash-charges">
+            <div class="dash-charge active" id="dash-1">
+              <div class="dash-fill" id="dash-fill-1"></div>
+            </div>
+            <div class="dash-charge active" id="dash-2">
+              <div class="dash-fill" id="dash-fill-2"></div>
+            </div>
+          </div>
+        </div>
+        <div id="skill-section">
+          <div class="hud-label">스킬 (스페이스)</div>
+          <div id="skill-icon">🌽</div>
+          <div id="skill-cooldown-bar-wrap">
+            <div id="skill-cooldown-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="hud-center">
+        <div id="kill-feed"></div>
+        <div id="storm-warning" class="hidden">⚠️ 폭풍 확산 중!</div>
+        <div id="boss-warning" class="hidden">💀 보스 등장!</div>
+      </div>
+
+      <div id="hud-right">
+        <div id="survivors-box">
+          <div class="hud-label">패턴</div>
+          <div id="survivors-count">0s</div>
+        </div>
+        <div id="round-box">
+          <div class="hud-label">라운드</div>
+          <div id="round-count">1</div>
+        </div>
+        <div id="powerups-box">
+          <div class="hud-label">버프</div>
+          <div id="active-powerups"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPGRADE SCREEN -->
+  <div id="upgrade-screen" class="screen">
+    <div class="upgrade-container">
+      <h2 class="upgrade-title">🌟 보스 처치!</h2>
+      <p class="upgrade-subtitle">업그레이드를 선택하세요</p>
+      <div id="upgrade-cards" class="upgrade-cards"></div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen" class="screen">
+    <div class="result-container">
+      <div id="result-emoji" class="result-emoji">🏆</div>
+      <h2 id="result-title" class="result-title">우승!</h2>
+      <div id="result-stats" class="result-stats"></div>
+      <button id="restart-btn" class="start-btn">다시 시작</button>
+      <button id="menu-btn" class="menu-return-btn">메뉴로</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
